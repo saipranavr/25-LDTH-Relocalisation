@@ -23,7 +23,7 @@ Under `data/example/images`, there's:
 
 The test set of images will follow this format, a flat directory structure with `X.png` and `X_search_area.json`. 
 
-**All drone images are taken from an altitude of ~125m**.
+**All drone images are taken from an altitude of between 110m and 120m**.
 
 Arondite will make the full test set of drone images available at 10am on Saturday; further details on this will follow as a PR in this repo.
 
