@@ -16,17 +16,16 @@ Contestants will be evaluated based on the error (distance calculated by Haversi
 ## Setup
 Run `uv sync`. If you don't have uv on your computer, you can find installation instructions [here](https://github.com/astral-sh/uv). We'd generally recommend using it for this project as it's lightweight and easy to manage! Feel free to add whatever libraries you need.
 
-## Structure
+## Data
 Under `data/example/images`, there's:
 1. An example image, `rickmansworth_example.png`
 1. The area in which to search for the image, `rickmansworth_example_search_area.json`, in GeoJSON FeatureCollection format
 
 The test set of images will follow this format, a flat directory structure with `X.png` and `X_search_area.json`
 
-## Data
-Arondite will make the full test set of drone images available at 10am on Saturday; further details on this will follow as a PR in this repo. 
+Arondite will make the full test set of drone images available at 10am on Saturday; further details on this will follow as a PR in this repo.
 
-Before the challenge begins, we'd recommend registering at: https://land.copernicus.eu/en in order to get easy access to satellite data. We recommend using [this](https://land.copernicus.eu/en/products/european-image-mosaic/very-high-resolution-image-mosaic-2021-true-colour-2m) tileset, but if you find a more suitable one then please feel free to use it!
+For satellite data, we've provided a helper function under `src/utility/get_satellite_image.py` which queries the [Copernicus VHR Image Mosaic](https://land.copernicus.eu/en/products/european-image-mosaic/very-high-resolution-image-mosaic-2021-true-colour-2m) using a bounding box in `EPSG:3035` format. We've also provided a helper function in `src/utility/epsg_4326_to_3035.py` that can read in a FeatureCollection bounds box in `EPSG:4326` format (i.e. the `_search_area.json` files) and convert it into the relevant format.
 
 ## Evaluating
 If you take a look at `data/example`, you'll see two `.csv` files: `estimations.csv` and `truth.csv`. The output of your code should be an `estimations.csv` file with guesses in a simple `id | latitude | longitude` format, which is then compared against a `truth.csv` by ID.
