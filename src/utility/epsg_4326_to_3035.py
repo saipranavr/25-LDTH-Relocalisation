@@ -40,3 +40,4 @@ if __name__ == "__main__":
     bboxes = geojson_to_3035_bboxes(path_to_geojson)
     for i, bbox in enumerate(bboxes):
         print(f"Feature {i+1} BBOX (EPSG:3035): {bbox}")
+        print(f"{bbox.to_query_string()}")

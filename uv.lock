@@ -12,6 +12,7 @@ source = { editable = "." }
 dependencies = [
     { name = "matplotlib" },
     { name = "owslib" },
+    { name = "pillow" },
     { name = "pyproj" },
     { name = "shapely" },
     { name = "tabulate" },
@@ -21,6 +22,7 @@ dependencies = [
 requires-dist = [
     { name = "matplotlib", specifier = ">=3.7.5" },
     { name = "owslib", specifier = ">=0.31.0" },
+    { name = "pillow", specifier = ">=10.4.0" },
     { name = "pyproj", specifier = ">=3.5.0" },
     { name = "shapely", specifier = ">=2.0.7" },
     { name = "tabulate" },

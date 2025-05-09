@@ -15,4 +15,4 @@ class BoundingBox:
     projection: Projection
 
     def to_query_string(self) -> str:
-        return f"{self.min_lon},{self.min_lat},{self.max_lon},{self.max_lat}"
+        return f"{int(self.min_lon)},{int(self.min_lat)},{int(self.max_lon)},{int(self.max_lat)}"

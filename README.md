@@ -21,7 +21,9 @@ Under `data/example/images`, there's:
 1. An example image, `rickmansworth_example.png`
 1. The area in which to search for the image, `rickmansworth_example_search_area.json`, in GeoJSON FeatureCollection format
 
-The test set of images will follow this format, a flat directory structure with `X.png` and `X_search_area.json`
+The test set of images will follow this format, a flat directory structure with `X.png` and `X_search_area.json`. 
+
+**All drone images are taken from an altitude of ~125m**.
 
 Arondite will make the full test set of drone images available at 10am on Saturday; further details on this will follow as a PR in this repo.
 

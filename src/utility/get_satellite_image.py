@@ -8,10 +8,10 @@ from src.utility.bounding_box import BoundingBox, Projection
 url = "https://image.discomap.eea.europa.eu/arcgis/rest/services/GioLand/VHR_2021_LAEA/ImageServer/exportImage"
 
 example_bbox = BoundingBox(
-    min_lat=2800000,
-    max_lat=2810000,
-    min_lon=4000000,
-    max_lon=4010000,
+    min_lat=3220365,
+    max_lat=3226152,
+    min_lon=3594402,
+    max_lon=3602683,
     projection=Projection.EPSG_3035
 )
 
