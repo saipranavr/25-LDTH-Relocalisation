@@ -37,7 +37,7 @@ We've provided a `run_eval.sh` script, which you can pass a directory to and com
 The final evaluation will be run in `data/eval` - so please don't put anything in here! - with a witheld set of validation images; the winning team will be the one with the lowest error. There's also a bonus award for the best-designed interface, if you want to spend time on that!
 
 ## Final Remarks
-- Everything is WSG84
+- Both the area to search and the evaluation coordinates are in WSG84/EPSG:4326 format
 - Please use this repo to flag any issues you come across
 - Arondite will also be present on-site for any questions you have
 - Good luck!
