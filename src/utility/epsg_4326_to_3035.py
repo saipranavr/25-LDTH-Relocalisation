@@ -1,3 +1,16 @@
+from pyproj import Transformer
+
+
+def epsg_4326_to_3035(lon, lat):
+    """Transforms a single WSG84 coordinate (EPSG:4326) to EPSG:3035."""
+    try:
+        transformer = Transformer.from_crs("EPSG:4326", "EPSG:3035", always_xy=True)
+        x, y = transformer.transform(lon, lat)
+        return x, y
+    except Exception as e:
+        print(f"Error transforming coordinates: {e}")
+        return None, None
+
 import json
 from src.utility.bounding_box  import BoundingBox, Projection
 from shapely.geometry import shape

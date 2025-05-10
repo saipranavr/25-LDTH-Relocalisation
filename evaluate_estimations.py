@@ -4,6 +4,9 @@ import os
 from math import radians, sin, cos, sqrt, atan2
 from typing import List, Tuple, Any
 from tabulate import tabulate
+from skimage.metrics import structural_similarity as ssim
+import cv2
+import numpy as np
 
 def load_csv(filepath: str) -> List[dict[str, Any]]:
     with open(filepath, newline='') as csvfile:
@@ -63,12 +66,29 @@ def compare_guesses_to_truth(guesses_path: str, truth_path: str) -> Tuple[List[L
     return results, total_error, match_count, not_supplied_count
 
 def main() -> None:
+    import os
+    import sys
+    sys.path.append('/Users/pranavreddy/Documents/GitHub/25-LDTH-Relocalisation')
+    from src.ssim_baseline import ssim_baseline
+    import argparse
+
     parser = argparse.ArgumentParser(description='Compare estimations.csv and truth.csv in a given directory.')
     parser.add_argument('directory', help='Path to directory containing estimations.csv and truth.csv')
     args = parser.parse_args()
 
-    guesses_path = os.path.join(args.directory, "estimations.csv")
+    uav_image_path = os.path.join(args.directory, "images", "rickmansworth_example.jpg")
+    search_area_json_path = os.path.join(args.directory, "images", "rickmansworth_example_search_area.json")
+
+    # Run ssim baseline and generate estimations.csv
+    predicted_lon, predicted_lat = ssim_baseline(uav_image_path, search_area_json_path)
+
+    estimations_content = f"image_id,longitude,latitude\nrickmansworth_example,{predicted_lon},{predicted_lat}"
+    estimations_path = os.path.join(args.directory, "estimations.csv")
+    with open(estimations_path, "w") as f:
+        f.write(estimations_content)
+
     truth_path = os.path.join(args.directory, "truth.csv")
+    guesses_path = estimations_path
 
     if not os.path.isfile(guesses_path):
         print(f"❌ File not found: {guesses_path}")
@@ -85,7 +105,6 @@ def main() -> None:
     print(f"\nTotal error: {total_error:.2f} m over {match_count} matches\n")
     if not_supplied_count > 0:
         print(f"{not_supplied_count} estimation(s) were not provided\n")
-
 
 if __name__ == '__main__':
     main()
