@@ -25,7 +25,7 @@ The test set of images will follow this format, a flat directory structure with 
 
 **All drone images are taken from an altitude of between 110m and 120m**.
 
-Arondite will make the full test set of drone images available at 10am on Saturday; further details on this will follow as a PR in this repo.
+The set of drone images can be found [here](https://drive.google.com/file/d/1zcYVbjbKEXTzOiEPoUF_NF1eCMGVTuib/view?usp=drive_link)
 
 For satellite data, we've provided a helper function under `src/utility/get_satellite_image.py` which queries the [Copernicus VHR Image Mosaic](https://land.copernicus.eu/en/products/european-image-mosaic/very-high-resolution-image-mosaic-2021-true-colour-2m) using a bounding box in `EPSG:3035` format. We've also provided a helper function in `src/utility/epsg_4326_to_3035.py` that can read in a FeatureCollection bounds box in `EPSG:4326` format (i.e. the `_search_area.json` files) and convert it into the relevant format.
 
