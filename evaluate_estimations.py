@@ -69,7 +69,7 @@ def main() -> None:
     import os
     import sys
     sys.path.append('/Users/pranavreddy/Documents/GitHub/25-LDTH-Relocalisation')
-    from src.ssim_baseline import ssim_baseline
+    from src.sift_baseline import sift_baseline
     import argparse
 
     parser = argparse.ArgumentParser(description='Compare estimations.csv and truth.csv in a given directory.')
@@ -79,8 +79,8 @@ def main() -> None:
     uav_image_path = os.path.join(args.directory, "images", "rickmansworth_example.jpg")
     search_area_json_path = os.path.join(args.directory, "images", "rickmansworth_example_search_area.json")
 
-    # Run ssim baseline and generate estimations.csv
-    predicted_lon, predicted_lat = ssim_baseline(uav_image_path, search_area_json_path)
+    # Run sift baseline and generate estimations.csv
+    predicted_lon, predicted_lat = sift_baseline(uav_image_path, search_area_json_path)
 
     estimations_content = f"image_id,longitude,latitude\nrickmansworth_example,{predicted_lon},{predicted_lat}"
     estimations_path = os.path.join(args.directory, "estimations.csv")
