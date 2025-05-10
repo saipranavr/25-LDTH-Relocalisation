@@ -34,14 +34,19 @@ def get_satellite_image(min_lon, min_lat, max_lon, max_lat, retries=3):
     )
 
     # Bounding box is in EPSG:3035 (since it's LAEA projection)
+    # Request a larger image size for potentially higher resolution
+    # If the server has higher resolution data, it should provide it.
+    # If not, it might upscale, or return an error, or return what it can.
+    requested_size_px = 1024 # Try to get a 1024x1024 image
     params = {
         "bbox": bbox.to_query_string(),
         "bboxSR": "3035",
-        "size": "256,256",  # Reduced image size
+        "size": f"{requested_size_px},{requested_size_px}", 
         "imageSR": "3035",
         "format": "png",  # can also be "tiff"
         "f": "image",
     }
+    print(f"Requesting satellite image with size: {params['size']}")
 
     for attempt in range(retries):
         try:
