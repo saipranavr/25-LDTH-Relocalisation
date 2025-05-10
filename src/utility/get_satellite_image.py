@@ -2,10 +2,10 @@ import requests
 from PIL import Image
 from io import BytesIO
 import matplotlib.pyplot as plt
-from src.utility.bounding_box import BoundingBox, Projection
+from bounding_box import BoundingBox, Projection
 
 # High res 2021 satellite imagery from Copernicus
-url = "https://image.discomap.eea.europa.eu/arcgis/rest/services/GioLand/VHR_2021_LAEA/ImageServer/exportImage"
+url = "https://image.discomap.eea.europa.eu/arcgis/rest/services/GioLand/VHR_2018_LAEA/ImageServer/exportImage"
 
 example_bbox = BoundingBox(
     min_lat=3220365,
