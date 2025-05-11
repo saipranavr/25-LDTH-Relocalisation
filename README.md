@@ -41,3 +41,5 @@ The final evaluation will be run in `data/eval` - so please don't put anything i
 - Please use this repo to flag any issues you come across
 - Arondite will also be present on-site for any questions you have
 - Good luck!
+
+python src/estimate_location_from_matches.py data/example/superglue_search_output/eiffel_tower_example_eiffel_tower_search_area_satellite_matches.npz data/example/images/eiffel_tower_search_area.json 1500 1500 512 512 --truth_lat 48.8584 --truth_lon 2.2945
