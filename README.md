@@ -42,4 +42,6 @@ The final evaluation will be run in `data/eval` - so please don't put anything i
 - Arondite will also be present on-site for any questions you have
 - Good luck!
 
+python third_party/SuperGluePretrainedNetwork/match_pairs.py \ --input_pairs data/example/eiffel_search_in_area_pair.txt \ --input_dir data/example/images/ \ --output_dir data/example/superglue_search_output/ \ --superglue outdoor \ --viz \ --resize -1
+
 python src/estimate_location_from_matches.py data/example/superglue_search_output/eiffel_tower_example_eiffel_tower_search_area_satellite_matches.npz data/example/images/eiffel_tower_search_area.json 1500 1500 512 512 --truth_lat 48.8584 --truth_lon 2.2945
