@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 import pandas as pd
 import argparse
+import re
 
 # Add project root to sys.path
 project_root = Path(__file__).resolve().parent.parent
@@ -37,17 +38,29 @@ def parse_estimation_output_for_coords(output_str):
     """Parses the output of estimate_location_from_matches.py to get only lat, lon."""
     est_lat, est_lon = None, None
     lines = output_str.splitlines()
-    for i, line in enumerate(lines):
+    found_success_header = False
+
+    for line in lines:
+        line = line.strip()
+
         if "Successfully estimated coordinates:" in line:
-            if i + 1 < len(lines) and "Latitude (EPSG:4326):" in lines[i+1]:
-                try:
-                    est_lat = float(lines[i+1].split(":")[1].strip())
-                except ValueError: pass
-            if i + 2 < len(lines) and "Longitude (EPSG:4326):" in lines[i+2]:
-                try:
-                    est_lon = float(lines[i+2].split(":")[1].strip())
-                except ValueError: pass
+            found_success_header = True
+            continue
+
+        if found_success_header:
+            # Match the last float number in the line
+            float_match = re.search(r"([-+]?[0-9]*\.?[0-9]+)$", line)
+
+            if "Latitude" in line and float_match:
+                est_lat = float(float_match.group(1))
+
+            elif "Longitude" in line and float_match:
+                est_lon = float(float_match.group(1))
+            if est_lat is not None and est_lon is not None:
+                break
+
     return est_lat, est_lon
+
 
 def main():
     parser = argparse.ArgumentParser(description="Run direct localization for a batch of images.")
@@ -167,8 +180,8 @@ def main():
                 # Ensure lat/lon are formatted nicely or handle None
                 row_data_formatted = {
                     "image_id": row_data["image_id"],
-                    "latitude": f"{row_data['latitude']:.8f}" if row_data['latitude'] is not None else "",
-                    "longitude": f"{row_data['longitude']:.8f}" if row_data['longitude'] is not None else ""
+                    "latitude": f"{row_data['latitude']:}" if row_data['latitude'] is not None else "",
+                    "longitude": f"{row_data['longitude']:}" if row_data['longitude'] is not None else ""
                 }
                 writer.writerow(row_data_formatted)
         print(f"\nBatch direct localization complete. Estimations saved to {args.output_estimations_csv}")
