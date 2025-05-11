@@ -1,84 +1,92 @@
-import requests
+# import requests # No longer needed for direct API calls
 from PIL import Image
-from io import BytesIO
-import matplotlib.pyplot as plt # For optional display, though likely off for batch
-from pyproj import Transformer
+# from io import BytesIO # No longer needed if staticmap returns PIL Image
+# import matplotlib.pyplot as plt # Not used in this script for display
+# from pyproj import Transformer # No longer needed for EPSG:3035 conversion
 import argparse
 import os
 import random
 import json
 import sys
 from pathlib import Path
+import math # For cos and radians
 
 # Add project root to sys.path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.utility.bounding_box import BoundingBox, Projection
+# from src.utility.bounding_box import BoundingBox, Projection # No longer needed
+from staticmap import StaticMap # For fetching static map images
+# from staticmap.util import guess_zoom_for_bounds # To calculate zoom level - apparently not found
 
-# API URL for VHR 2018 imagery (known to be working)
-API_URL = "https://image.discomap.eea.europa.eu/arcgis/rest/services/GioLand/VHR_2018_LAEA/ImageServer/exportImage"
+# URL for a free satellite imagery tile server (Esri World Imagery)
+ESRI_WORLD_IMAGERY_URL = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
 
 def fetch_and_save_image(
-    lat_4326: float, 
-    lon_4326: float, 
-    image_id_base: str, 
-    index: int, 
+    lat_4326: float,
+    lon_4326: float,
+    image_id_base: str,
+    index: int,
     output_dir: str,
-    box_size_meters: float = 500, 
+    box_size_meters: float = 500,
     image_pixels: int = 512
     ):
     """
-    Fetches a satellite image for given EPSG:4326 coordinates and saves it.
-    Adapted from fetch_image_by_latlon.py
+    Fetches a satellite image for given EPSG:4326 coordinates using staticmap
+    and saves it.
     """
     output_filename = f"{image_id_base}_{index:02d}.jpg"
     output_image_path = os.path.join(output_dir, output_filename)
 
-    print(f"Fetching image for Lat: {lat_4326:.6f}, Lon: {lon_4326:.6f} -> {output_filename}")
+    print(f"Fetching image for Lat: {lat_4326:.6f}, Lon: {lon_4326:.6f} (approx {box_size_meters}m box) -> {output_filename}")
 
-    # 1. Transform coordinates from EPSG:4326 to EPSG:3035
-    transformer = Transformer.from_crs(Projection.EPSG_4326.value, Projection.EPSG_3035.value, always_xy=True)
-    center_lon_3035, center_lat_3035 = transformer.transform(lon_4326, lat_4326)
+    # 1. Calculate WGS84 bounding box from center point and box_size_meters
+    # Approximate conversion: 1 degree latitude ~= 111.111 km
+    # 1 degree longitude ~= 111.111 km * cos(latitude)
+    half_side_meters = box_size_meters / 2.0
+    
+    delta_lat_deg = half_side_meters / 111111.0
+    delta_lon_deg = half_side_meters / (111111.0 * math.cos(math.radians(lat_4326)))
 
-    # 2. Define the bounding box in EPSG:3035
-    half_side = box_size_meters / 2
-    bbox_3035 = BoundingBox(
-        min_lat=int(center_lat_3035 - half_side),
-        max_lat=int(center_lat_3035 + half_side),
-        min_lon=int(center_lon_3035 - half_side),
-        max_lon=int(center_lon_3035 + half_side),
-        projection=Projection.EPSG_3035
+    min_lat = lat_4326 - delta_lat_deg
+    max_lat = lat_4326 + delta_lat_deg
+    min_lon = lon_4326 - delta_lon_deg
+    max_lon = lon_4326 + delta_lon_deg
+
+    # 2. Create StaticMap object
+    static_map_obj = StaticMap(
+        width=image_pixels,
+        height=image_pixels,
+        url_template=ESRI_WORLD_IMAGERY_URL
     )
 
-    # 3. Prepare API request parameters
-    params = {
-        "bbox": bbox_3035.to_query_string(),
-        "bboxSR": bbox_3035.projection.value.split(':')[1],
-        "size": f"{image_pixels},{image_pixels}",
-        "imageSR": bbox_3035.projection.value.split(':')[1],
-        "format": "jpeg", 
-        "f": "image",
-    }
-
-    # 4. Fetch the image
-    response = requests.get(API_URL, params=params)
-
+    # 3. Render the image for the bounding box
     try:
-        response.raise_for_status()
-        image = Image.open(BytesIO(response.content))
+        # Calculate the center of the previously determined bounding box
+        # This bounding box was derived from lat_4326, lon_4326 and box_size_meters
+        center_lon = (min_lon + max_lon) / 2.0
+        center_lat = (min_lat + max_lat) / 2.0
         
-        # 5. Save the image
+        # Use a fixed zoom level. Zoom level 17 is typically good for ~500m areas.
+        # The box_size_meters argument is now primarily for centering.
+        # Actual ground coverage will depend on this zoom level and pixel dimensions.
+        fixed_zoom_level = 17 
+        
+        print(f"  Requesting image from tile server for center: ({center_lon:.6f}, {center_lat:.6f}), Zoom: {fixed_zoom_level}")
+        image = static_map_obj.render(center=(center_lon, center_lat), zoom=fixed_zoom_level)
+        
+        # 4. Save the image
         os.makedirs(output_dir, exist_ok=True)
         image.save(output_image_path)
         print(f"  Successfully saved to {output_image_path}")
         return True
-    except requests.exceptions.HTTPError as err:
-        print(f"  HTTP error for {output_filename}: {err}")
-        print(f"  Response content: {response.content.decode(errors='ignore')}")
+    except ImportError:
+        print("Error: The 'staticmap' library is not installed. Please install it (e.g., pip install staticmap).")
         return False
     except Exception as e:
-        print(f"  An error occurred for {output_filename}: {e}")
+        print(f"  An error occurred while fetching/saving {output_filename}: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 def get_bounds_from_geojson(geojson_path: str):

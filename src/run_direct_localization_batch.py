@@ -6,6 +6,8 @@ from pathlib import Path
 import pandas as pd
 import argparse
 import re
+import matplotlib.pyplot as plt
+from PIL import Image
 
 # Add project root to sys.path
 project_root = Path(__file__).resolve().parent.parent
@@ -33,6 +35,31 @@ def run_command(command_list):
     except Exception as e:
         print(f"Exception running command: {e}")
         return False, str(e)
+
+def display_images_for_matching(target_img_path: str, satellite_img_path: str):
+    """Displays the target and satellite images using Matplotlib."""
+    try:
+        target_img = Image.open(target_img_path)
+        satellite_img = Image.open(satellite_img_path)
+
+        fig, axes = plt.subplots(1, 2, figsize=(15, 7))
+        
+        axes[0].imshow(target_img)
+        axes[0].set_title(f"Target: {os.path.basename(target_img_path)}")
+        axes[0].axis('off')
+        
+        axes[1].imshow(satellite_img)
+        axes[1].set_title(f"Satellite Search Area: {os.path.basename(satellite_img_path)}")
+        axes[1].axis('off')
+        
+        plt.suptitle("Images for SuperGlue Matching")
+        plt.tight_layout(rect=[0, 0, 1, 0.96]) # Adjust layout to make space for suptitle
+        plt.show() # This will block until the window is closed
+
+    except FileNotFoundError:
+        print(f"Error displaying images: One or both files not found ({target_img_path}, {satellite_img_path})")
+    except Exception as e:
+        print(f"Error displaying images: {e}")
 
 def parse_estimation_output_for_coords(output_str):
     """Parses the output of estimate_location_from_matches.py to get only lat, lon."""
@@ -139,15 +166,19 @@ def main():
         stem1 = Path(path_img1_for_pairfile).stem
         npz_matches_path = os.path.join(DEFAULT_SUPERGLUE_OUTPUT_DIR, f"{stem0}_{stem1}_matches.npz")
 
+        # Display images before running SuperGlue
+        print(f"Displaying images for matching: {Path(target_image_full_path).name} and {Path(search_area_image_path).name}")
+        display_images_for_matching(target_image_full_path, search_area_image_path)
+
         # Run SuperGlue
         sg_cmd = [
             "python", DEFAULT_SUPERGLUE_SCRIPT_PATH,
             "--input_pairs", pair_file_path,
             "--input_dir", ".", # Project root
             "--output_dir", DEFAULT_SUPERGLUE_OUTPUT_DIR,
-            "--superglue", "outdoor", 
-            # "--viz", # Omit for no visualization during batch
-            "--resize", "-1" 
+            "--superglue", "outdoor",
+            "--viz", # Enable visualization
+            "--resize", "-1"
         ]
         success_sg, _ = run_command(sg_cmd)
 
