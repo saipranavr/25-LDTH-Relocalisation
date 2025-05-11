@@ -42,5 +42,6 @@ The final evaluation will be run in `data/eval` - so please don't put anything i
 - Arondite will also be present on-site for any questions you have
 - Good luck!
 
-python src/run_direct_localization_batch.py     data/example/images/test/test_images_truth.csv     data/example/images/test/     data/example/images/eiffel_tower_search_area.json     1500     1500     data/example/estimations_direct_batch.csv
+python src/run_direct_localization_batch.py     data/example/test/truth.csv     data/example/images/test/     data/example/images/eiffel_tower_search_area.json     1500     1500     data/example/test/estimations.csv
 
+python evaluate_estimations.py data/example/test
